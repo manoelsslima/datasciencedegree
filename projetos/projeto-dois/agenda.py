@@ -23,6 +23,8 @@ class Agenda():
         emails = list()
         if (cpf == None):
             cpf = input('Informe o CPF: ')
+        if (cpf in self.__dados):
+            raise Exception("CPF já cadastrado!")
         nome = input('Informe um nome: ')
         if (nome == None or nome == ''):
             raise Exception('O campo \'nome\' é obrigatório!')

@@ -9,13 +9,13 @@ Data: 25/07/2021
 '''
 class Agenda():
     '''Agenda'''
-    limite = 75 # limite de contatos na agenda
+    limite = 75 # número máximo de contatos na agenda
 
     def __init__(self, arquivo_agenda):
         self.__bd = BancoDados(arquivo_agenda)
         self.__dados = self.__bd.abrir_arquivo()
 
-    def __popular_contato(self, cpf=None):
+    def __popular_contato(self, cpf=None, edicao=None):
         '''Solicita informações do usuário para preencher um objeto do tipo Contato
         Se o cpf for informado, significa que está editando o Contato e, portanto,
         o cpf não será solicitado'''
@@ -23,8 +23,9 @@ class Agenda():
         emails = list()
         if (cpf == None):
             cpf = input('Informe o CPF: ')
-        if (cpf in self.__dados):
-            raise Exception("CPF já cadastrado!")
+        if (edicao == None):
+            if (cpf in self.__dados):
+                raise Exception("CPF já cadastrado!")
         nome = input('Informe um nome: ')
         if (nome == None or nome == ''):
             raise Exception('O campo \'nome\' é obrigatório!')
@@ -72,7 +73,7 @@ class Agenda():
             self.__dados.update(eval(contato_json))
             self.__bd.gravar_arquivo(self.__dados)
         else:
-            raise Exception('Número máximo de 75 contatos excedidos!')
+            raise Exception(f'Número máximo de {Agenda.limite} contatos excedidos!')
 
     def buscar(self):
         '''Busca um contato'''
@@ -107,9 +108,9 @@ class Agenda():
                 contatos.update(contato_localizado)
         if (localizado == True):
             print('')
-            print('-' * 78)
+            print('=' * 78)
             print('Informações dos contatos do grupo:',grupo)
-            print('-' * 78)
+            print('=' * 78)
             for chave, valor in contatos.items():
                 print(f'CPF :', chave)
                 for chave, valor in valor.items():
@@ -166,10 +167,13 @@ class Agenda():
         for chave, valor in self.__dados.items():
             if (cpf == chave):
                 localizado = True
-                print("Removendo o contato CPF:", cpf)
+                print('')
+                print('----------------------------------------')
+                print(f'Contato {cpf} removido')
+                print('----------------------------------------')
+                print('')
                 del self.__dados[cpf]
                 self.__bd.gravar_arquivo(self.__dados)
-                #self.listar()
                 break
         if (localizado == False):
             print('')
@@ -187,7 +191,7 @@ class Agenda():
                 self.__buscar_por_cpf(cpf)
                 localizado = True
                 print("Editando o contato CPF:", cpf)
-                contato = self.__popular_contato(chave)
+                contato = self.__popular_contato(chave, edicao=True)
                 string_contato = eval(self.__converter_contato_json(contato))
                 dicionario = dict(string_contato)
                 valores = str(list(dicionario.values()))
@@ -207,9 +211,9 @@ class Agenda():
 
     def listar(self):
         '''Lista o conteúdo do arquivo'''
-        print('-' * 78)
+        print('=' * 78)
         print('Contatos cadastrados')
-        print('-' * 78)
+        print('=' * 78)
         if (self.__dados):
             for chave, valor in self.__dados.items():
                 print(f'CPF :', chave)
